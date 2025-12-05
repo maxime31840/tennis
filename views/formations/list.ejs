@@ -1,0 +1,23 @@
+
+<div class="container mt-4">
+<h2>Liste des formations</h2>
+<a href="/formations/create" class="btn btn-primary mb-3">Créer une formation</a>
+<table class="table table-striped">
+<thead>
+<tr>
+<th>ID</th>
+<th>Titre</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<% formations.forEach(f => { %>
+<tr>
+<td><%= f.id %></td>
+<td><%= f.titre %></td>
+<td><%= f.description %></td>
+</tr>
+<% }) %>
+</tbody>
+</table>
+</div>
