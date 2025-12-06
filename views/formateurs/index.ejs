@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
+</head>
+<body>
+  <%- include('../partials/navbar'); %>
+
+  <div class="container mt-5">
+    <h1 class="mb-4"><%= title %></h1>
+
+     <a href="/formateurs/ajouter" class="btn btn-primary mb-3">Ajouter un formateur</a>
+
+    <!-- Table des formateurs -->
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+            <th>id</th>
+            <th>user_id</th>
+            <th>spécialité</th>
+        
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="formateursTable"></tbody>
+    </table>
+  </div>
+
+ <script>
+async function fetchFormateurs() {
+  try {
+    const res = await fetch('/api/formateurs');
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+
+    const tbody = document.getElementById('usersTable');
+    tbody.innerHTML = '';
+
+    data.formateurs.forEach(f => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${f.id}</td>
+        <td>${f.user_id || ''}</td>
+        <td>${f.specialite || ''}</td>
+        <td>
+          <button class="btn btn-warning btn-sm" onclick="modifier(${f.id})">Modifier</button>
+          <button class="btn btn-danger btn-sm" onclick="supprimer(${f.id})">Supprimer</button>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+  } catch (err) {
+    console.error('Erreur API :', err);
+    alert(err.message);
+  }
+}
+
+async function supprimer(id) {
+  if (!confirm('Voulez-vous vraiment supprimer ce formateur ?')) return;
+  try {
+    const res = await fetch(`/api/formateurs/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+    fetchFormateurs();
+  } catch (err) {
+    alert('Erreur : ' + err.message);
+  }
+}
+
+function modifier(id) {
+  const newSpecialite = prompt('Entrez la nouvelle spécialité :');
+  if (!newSpecialite) return;
+  fetch(`/api/formateurs/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ specialite: newSpecialite })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) fetchFormateurs();
+    else alert(data.message);
+  })
+  .catch(err => alert(err.message));
+}
+
+// Charger les formateurs au chargement
+fetchFormateurs();
+</script>
+    <%- include('../partials/footer'); %>
+</body>
+</html>

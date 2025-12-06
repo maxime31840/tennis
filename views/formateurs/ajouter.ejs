@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users</title>
+</head>
+<body>
+
+    <%- include('../partials/navbar'); %>
+    <h1>User Login</h1>
+    <form id="ajouterUser">
+  <div class="form-group">
+    <label for="nom">Nom</label>
+    <input type="text" class="form-control" id="nom" name="nom" aria-describedby="emailHelp" placeholder="Enter nom">
+  </div>
+  <div class="form-group">
+    <label for="specialite">specialite</label>
+    <input type="text" class="form-control" id="specialite" name="specialite" placeholder="Enter spécialité">
+  </div>
+    </div>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+     <script>
+    // Soumission via l’API REST
+    document.getElementById('ajouterFormateur').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = Object.fromEntries(new FormData(e.target).entries());
+
+      try {
+        const res = await fetch('/api/formateur', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          alert('✅ Formateur ajouté avec succès !');
+          window.location.href = '/formateurs';
+        } else {
+          alert('❌ ' + (data.message || 'Erreur serveur.'));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Erreur lors de la requête.');
+      }
+    });
+  </script>
+    <%- include('../partials/footer'); %>
+
+</body>
+</html>

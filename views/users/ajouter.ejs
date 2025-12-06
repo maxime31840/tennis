@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users</title>
+</head>
+<body>
+
+    <%- include('../partials/navbar'); %>
+    <h1>User Login</h1>
+    <form id="ajouterUser">
+  <div class="form-group">
+    <label for="nom">Nom</label>
+    <input type="text" class="form-control" id="nom" name="nom" aria-describedby="emailHelp" placeholder="Enter nom">
+  </div>
+  <div class="form-group">
+    <label for="prenom">Prénom</label>
+    <input type="text" class="form-control" id="prenom" name="prenom" placeholder="Enter prénom">
+  </div>
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+  </div>
+  <div class="form-group">
+    <label for="password">Password</label>
+    <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+  </div>
+  <div class="mb-3">
+    <label for="role" class="form-label">Sélectionnez un rôle</label>
+    <select class="form-select" id="role" name="role" required>
+        <option value="" selected disabled>-- Choisissez un rôle --</option>
+        <option value="admin">Administrateur</option>
+        <option value="apprenant">Apprenant</option>
+        <option value="formateur">formateur</option>
+    </select>
+    </div>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+     <script>
+    // Soumission via l’API REST
+    document.getElementById('ajouterUser').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = Object.fromEntries(new FormData(e.target).entries());
+
+      try {
+        const res = await fetch('/api/user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          alert('✅ Utilisateur ajouté avec succès !');
+          window.location.href = '/users';
+        } else {
+          alert('❌ ' + (data.message || 'Erreur serveur.'));
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Erreur lors de la requête.');
+      }
+    });
+  </script>
+    <%- include('../partials/footer'); %>
+
+</body>
+</html>
