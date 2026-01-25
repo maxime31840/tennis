@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <h1 class="section-title mb-4"><%= title %></h1>
+          <form id="editPresenceForm" class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label" for="inscription_id">Inscription</label>
+              <select class="form-select" id="inscription_id" name="inscription_id" required>
+                <option value="" disabled>Choisir une inscription</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="statut">Statut</label>
+              <select class="form-select" id="statut" name="statut" required>
+                <option value="present">present</option>
+                <option value="absent">absent</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="date">Date</label>
+              <input type="datetime-local" class="form-control" id="date" name="date" required>
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-brand">Mettre a jour</button>
+              <a href="/presences" class="btn btn-outline-brand">Annuler</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      const presenceId = <%= presenceId %>;
+
+      function toLocalDateTime(value) {
+        if (!value) return '';
+        const date = new Date(value);
+        const offset = date.getTimezoneOffset() * 60000;
+        return new Date(date - offset).toISOString().slice(0, 16);
+      }
+
+      function formatDate(value) {
+        if (!value) return '';
+        return new Date(value).toLocaleString();
+      }
+
+      async function loadPresence() {
+        const [presenceRes, inscriptionsRes, usersRes, sessionsRes, formationsRes] = await Promise.all([
+          fetch(`/api/presences/${presenceId}`),
+          fetch('/api/inscriptions'),
+          fetch('/api/users'),
+          fetch('/api/sessions'),
+          fetch('/api/formations')
+        ]);
+
+        const presenceData = await presenceRes.json();
+        const inscriptionsData = await inscriptionsRes.json();
+        const usersData = await usersRes.json();
+        const sessionsData = await sessionsRes.json();
+        const formationsData = await formationsRes.json();
+        if (!presenceData.success) throw new Error(presenceData.message);
+        if (!inscriptionsData.success) throw new Error(inscriptionsData.message);
+        if (!usersData.success) throw new Error(usersData.message);
+        if (!sessionsData.success) throw new Error(sessionsData.message);
+        if (!formationsData.success) throw new Error(formationsData.message);
+
+        const userMap = new Map(usersData.users.map(u => [u.id, `${u.prenom || ''} ${u.nom || ''}`.trim()]));
+        const formationMap = new Map(formationsData.formations.map(f => [f.id, f.titre]));
+        const sessionMap = new Map(sessionsData.sessions.map(s => {
+          const formation = formationMap.get(s.formation_id) || `Formation #${s.formation_id}`;
+          return [s.id, `${formation} - ${formatDate(s.date_debut)}`];
+        }));
+
+        const select = document.getElementById('inscription_id');
+        inscriptionsData.inscriptions.forEach(inscription => {
+          const option = document.createElement('option');
+          option.value = inscription.id;
+          const user = userMap.get(inscription.user_id) || `User #${inscription.user_id}`;
+          const session = sessionMap.get(inscription.session_id) || `Session #${inscription.session_id}`;
+          option.textContent = `${user} / ${session}`;
+          if (inscription.id === presenceData.presence.inscription_id) option.selected = true;
+          select.appendChild(option);
+        });
+
+        document.getElementById('statut').value = presenceData.presence.statut;
+        document.getElementById('date').value = toLocalDateTime(presenceData.presence.date);
+      }
+
+      document.getElementById('editPresenceForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = Object.fromEntries(new FormData(e.target).entries());
+        try {
+          const res = await fetch(`/api/presences/${presenceId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert('Presence mise a jour avec succes.');
+            window.location.href = '/presences';
+          } else {
+            alert(data.message || 'Erreur serveur.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Erreur lors de la requete.');
+        }
+      });
+
+      loadPresence().catch(err => alert(err.message));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <h1 class="section-title mb-4"><%= title %></h1>
+          <form id="ajouterAvis" class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="user_id">Apprenant</label>
+              <select class="form-select" id="user_id" name="user_id" required>
+                <option value="" disabled selected>Choisir un apprenant</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="formation_id">Formation</label>
+              <select class="form-select" id="formation_id" name="formation_id" required>
+                <option value="" disabled selected>Choisir une formation</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="note">Note</label>
+              <input type="number" class="form-control" id="note" name="note" min="0" max="10" required>
+            </div>
+            <div class="col-md-8">
+              <label class="form-label" for="date">Date</label>
+              <input type="datetime-local" class="form-control" id="date" name="date" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="commentaire">Commentaire</label>
+              <textarea class="form-control" id="commentaire" name="commentaire" rows="4"></textarea>
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-brand">Creer</button>
+              <a href="/avis" class="btn btn-outline-brand">Annuler</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      function setNow() {
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        document.getElementById('date').value = new Date(now - offset).toISOString().slice(0, 16);
+      }
+
+      async function loadOptions() {
+        const [usersRes, formationsRes] = await Promise.all([
+          fetch('/api/users'),
+          fetch('/api/formations')
+        ]);
+        const usersData = await usersRes.json();
+        const formationsData = await formationsRes.json();
+        if (!usersData.success) throw new Error(usersData.message);
+        if (!formationsData.success) throw new Error(formationsData.message);
+
+        const userSelect = document.getElementById('user_id');
+        usersData.users.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.id;
+          option.textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || `User #${user.id}`;
+          userSelect.appendChild(option);
+        });
+
+        const formationSelect = document.getElementById('formation_id');
+        formationsData.formations.forEach(formation => {
+          const option = document.createElement('option');
+          option.value = formation.id;
+          option.textContent = formation.titre || `Formation #${formation.id}`;
+          formationSelect.appendChild(option);
+        });
+      }
+
+      document.getElementById('ajouterAvis').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = Object.fromEntries(new FormData(e.target).entries());
+        try {
+          const res = await fetch('/api/avis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert('Avis ajoute avec succes.');
+            window.location.href = '/avis';
+          } else {
+            alert(data.message || 'Erreur serveur.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Erreur lors de la requete.');
+        }
+      });
+
+      setNow();
+      loadOptions().catch(err => alert(err.message));
+    </script>
+  </body>
+</html>

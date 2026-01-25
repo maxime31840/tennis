@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <h1 class="section-title mb-4"><%= title %></h1>
+          <form id="ajouterInscription" class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="user_id">Apprenant</label>
+              <select class="form-select" id="user_id" name="user_id" required>
+                <option value="" disabled selected>Choisir un apprenant</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="session_id">Session</label>
+              <select class="form-select" id="session_id" name="session_id" required>
+                <option value="" disabled selected>Choisir une session</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="date_inscription">Date inscription</label>
+              <input type="datetime-local" class="form-control" id="date_inscription" name="date_inscription" required>
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-brand">Creer</button>
+              <a href="/inscriptions" class="btn btn-outline-brand">Annuler</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      function setNow() {
+        const now = new Date();
+        const offset = now.getTimezoneOffset() * 60000;
+        document.getElementById('date_inscription').value = new Date(now - offset).toISOString().slice(0, 16);
+      }
+
+      function formatDate(value) {
+        if (!value) return '';
+        return new Date(value).toLocaleString();
+      }
+
+      async function loadOptions() {
+        const [usersRes, sessionsRes, formationsRes] = await Promise.all([
+          fetch('/api/users'),
+          fetch('/api/sessions'),
+          fetch('/api/formations')
+        ]);
+        const usersData = await usersRes.json();
+        const sessionsData = await sessionsRes.json();
+        const formationsData = await formationsRes.json();
+        if (!usersData.success) throw new Error(usersData.message);
+        if (!sessionsData.success) throw new Error(sessionsData.message);
+        if (!formationsData.success) throw new Error(formationsData.message);
+
+        const userSelect = document.getElementById('user_id');
+        usersData.users.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.id;
+          option.textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || `User #${user.id}`;
+          userSelect.appendChild(option);
+        });
+
+        const formationMap = new Map(formationsData.formations.map(f => [f.id, f.titre]));
+        const sessionSelect = document.getElementById('session_id');
+        sessionsData.sessions.forEach(session => {
+          const option = document.createElement('option');
+          option.value = session.id;
+          const formation = formationMap.get(session.formation_id) || `Formation #${session.formation_id}`;
+          option.textContent = `${formation} - ${formatDate(session.date_debut)}`;
+          sessionSelect.appendChild(option);
+        });
+      }
+
+      document.getElementById('ajouterInscription').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = Object.fromEntries(new FormData(e.target).entries());
+        try {
+          const res = await fetch('/api/inscriptions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert('Inscription ajoutee avec succes.');
+            window.location.href = '/inscriptions';
+          } else {
+            alert(data.message || 'Erreur serveur.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Erreur lors de la requete.');
+        }
+      });
+
+      setNow();
+      loadOptions().catch(err => alert(err.message));
+    </script>
+  </body>
+</html>

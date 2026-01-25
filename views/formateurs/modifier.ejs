@@ -9,11 +9,11 @@
       <div class="container">
         <section class="data-card fade-up">
           <h1 class="section-title mb-4"><%= title %></h1>
-          <form id="ajouterFormateur" class="row g-3">
+          <form id="editFormateurForm" class="row g-3">
             <div class="col-md-6">
               <label class="form-label" for="user_id">Utilisateur</label>
               <select class="form-select" id="user_id" name="user_id" required>
-                <option value="" disabled selected>Choisir un utilisateur</option>
+                <option value="" disabled>Choisir un utilisateur</option>
               </select>
             </div>
             <div class="col-md-6">
@@ -21,7 +21,7 @@
               <input type="text" class="form-control" id="specialite" name="specialite">
             </div>
             <div class="col-12 d-flex gap-2">
-              <button type="submit" class="btn btn-brand">Creer</button>
+              <button type="submit" class="btn btn-brand">Mettre a jour</button>
               <a href="/formateurs" class="btn btn-outline-brand">Annuler</a>
             </div>
           </form>
@@ -31,31 +31,43 @@
     <%- include('../partials/footer'); %>
 
     <script>
-      async function loadUsers() {
-        const res = await fetch('/api/users');
-        const data = await res.json();
-        if (!data.success) throw new Error(data.message);
+      const formateurId = '<%= formateurId %>';
+
+      async function loadFormateur() {
+        const [formateurRes, usersRes] = await Promise.all([
+          fetch(`/api/formateurs/${formateurId}`),
+          fetch('/api/users')
+        ]);
+
+        const formateurData = await formateurRes.json();
+        const usersData = await usersRes.json();
+        if (!formateurData.success) throw new Error(formateurData.message);
+        if (!usersData.success) throw new Error(usersData.message);
+
         const select = document.getElementById('user_id');
-        data.users.forEach(user => {
+        usersData.users.forEach(user => {
           const option = document.createElement('option');
           option.value = user.id;
           option.textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || `User #${user.id}`;
+          if (user.id === formateurData.formateur.user_id) option.selected = true;
           select.appendChild(option);
         });
+
+        document.getElementById('specialite').value = formateurData.formateur.specialite || '';
       }
 
-      document.getElementById('ajouterFormateur').addEventListener('submit', async (e) => {
+      document.getElementById('editFormateurForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = Object.fromEntries(new FormData(e.target).entries());
         try {
-          const res = await fetch('/api/formateurs', {
-            method: 'POST',
+          const res = await fetch(`/api/formateurs/${formateurId}`, {
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
           });
           const data = await res.json();
           if (data.success) {
-            alert('Formateur ajoute avec succes.');
+            alert('Formateur mis a jour avec succes.');
             window.location.href = '/formateurs';
           } else {
             alert(data.message || 'Erreur serveur.');
@@ -66,7 +78,7 @@
         }
       });
 
-      loadUsers().catch(err => alert(err.message));
+      loadFormateur().catch(err => alert(err.message));
     </script>
   </body>
 </html>

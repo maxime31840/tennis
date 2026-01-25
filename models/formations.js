@@ -15,7 +15,7 @@ const Formation = sequelize.define('Formation', {
     description: {
         type: DataTypes.STRING,
         allowNull: true,
-        defaultValue: NULL
+        defaultValue: null
     }
 
 }, {

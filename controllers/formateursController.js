@@ -3,20 +3,17 @@ const Formateur = require('../models/formateurs');
 
 const router = express.Router();
 
-// 📌 Créer un formateur
 router.post('/formateurs', async (req, res) => {
   try {
-    const { specialite} = req.body;
-
-    const newFormateur = await Formateur.create({ specialite});
-    res.status(201).json({ success: true, message: 'Formateur créé', formateur: newFormateur });
+    const { user_id, specialite } = req.body;
+    const newFormateur = await Formateur.create({ user_id, specialite });
+    res.status(201).json({ success: true, message: 'Formateur cree', formateur: newFormateur });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Erreur serveur.' });
   }
 });
 
-// 📌 Récupérer tous les formateurs
 router.get('/formateurs', async (req, res) => {
   try {
     const formateurs = await Formateur.findAll();
@@ -27,35 +24,45 @@ router.get('/formateurs', async (req, res) => {
   }
 });
 
-// 📌 Supprimer un formateur
-router.delete('/formateurs/:id', async (req, res) => {
+router.get('/formateurs/:id', async (req, res) => {
   try {
-    const id = req.params.id;
-    const deleted = await Formateur.destroy({ where: { id } });
-    if (deleted) res.json({ success: true, message: 'Formateur supprimé.' });
-    else res.status(404).json({ success: false, message: 'Formateur non trouvé.' });
+    const formateur = await Formateur.findByPk(req.params.id);
+    if (!formateur) {
+      return res.status(404).json({ success: false, message: 'Formateur non trouve.' });
+    }
+    res.json({ success: true, formateur });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: 'Erreur serveur.' });
   }
 });
 
-// 📌 Modifier un formateur
+router.delete('/formateurs/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deleted = await Formateur.destroy({ where: { id } });
+    if (deleted) res.json({ success: true, message: 'Formateur supprime.' });
+    else res.status(404).json({ success: false, message: 'Formateur non trouve.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Erreur serveur.' });
+  }
+});
+
 router.put('/formateurs/:id', async (req, res) => {
   try {
     const id = req.params.id;
-    const { specialite} = req.body;
-
+    const { user_id, specialite } = req.body;
     const [updated] = await Formateur.update(
-      { specialite},
+      { user_id, specialite },
       { where: { id } }
     );
 
     if (updated) {
-      const updatedFormateur = await Formateur.findOne({ where: { id } });
-      res.json({ success: true, message: 'Formateur mis à jour.', formateur: updatedFormateur });
+      const updatedFormateur = await Formateur.findByPk(id);
+      res.json({ success: true, message: 'Formateur mis a jour.', formateur: updatedFormateur });
     } else {
-      res.status(404).json({ success: false, message: 'Formateur non trouvé.' });
+      res.status(404).json({ success: false, message: 'Formateur non trouve.' });
     }
   } catch (err) {
     console.error(err);

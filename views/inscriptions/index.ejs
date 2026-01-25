@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+              <h1 class="section-title mb-1"><%= title %></h1>
+              <p class="text-muted mb-0">Suivi des inscriptions aux sessions.</p>
+            </div>
+            <a href="/inscriptions/ajouter" class="btn btn-brand">Ajouter une inscription</a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-borderless align-middle">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Apprenant</th>
+                  <th>Session</th>
+                  <th>Date inscription</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="inscriptionsTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      function formatDate(value) {
+        if (!value) return '';
+        return new Date(value).toLocaleString();
+      }
+
+      async function fetchInscriptions() {
+        try {
+          const [inscriptionsRes, usersRes, sessionsRes, formationsRes] = await Promise.all([
+            fetch('/api/inscriptions'),
+            fetch('/api/users'),
+            fetch('/api/sessions'),
+            fetch('/api/formations')
+          ]);
+          const inscriptionsData = await inscriptionsRes.json();
+          const usersData = await usersRes.json();
+          const sessionsData = await sessionsRes.json();
+          const formationsData = await formationsRes.json();
+          if (!inscriptionsData.success) throw new Error(inscriptionsData.message);
+          if (!usersData.success) throw new Error(usersData.message);
+          if (!sessionsData.success) throw new Error(sessionsData.message);
+          if (!formationsData.success) throw new Error(formationsData.message);
+
+          const userMap = new Map(usersData.users.map(u => [u.id, `${u.prenom || ''} ${u.nom || ''}`.trim()]));
+          const formationMap = new Map(formationsData.formations.map(f => [f.id, f.titre]));
+          const sessionMap = new Map(sessionsData.sessions.map(s => {
+            const formation = formationMap.get(s.formation_id) || `Formation #${s.formation_id}`;
+            return [s.id, `${formation} - ${formatDate(s.date_debut)}`];
+          }));
+
+          const tbody = document.getElementById('inscriptionsTable');
+          tbody.innerHTML = '';
+
+          inscriptionsData.inscriptions.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${item.id}</td>
+              <td>${userMap.get(item.user_id) || item.user_id || ''}</td>
+              <td>${sessionMap.get(item.session_id) || item.session_id || ''}</td>
+              <td>${formatDate(item.date_inscription)}</td>
+              <td class="text-end">
+                <a href="/inscriptions/modifier/${item.id}" class="btn btn-sm btn-outline-brand">Modifier</a>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="supprimer('${item.id}')">Supprimer</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } catch (err) {
+          console.error('Erreur API :', err);
+          alert(err.message);
+        }
+      }
+
+      async function supprimer(id) {
+        if (!confirm('Voulez-vous vraiment supprimer cette inscription ?')) return;
+        try {
+          const res = await fetch(`/api/inscriptions/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.message);
+          fetchInscriptions();
+        } catch (err) {
+          alert('Erreur : ' + err.message);
+        }
+      }
+
+      fetchInscriptions();
+    </script>
+  </body>
+</html>

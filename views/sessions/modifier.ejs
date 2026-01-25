@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <h1 class="section-title mb-4"><%= title %></h1>
+          <form id="editSessionForm" class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="formation_id">Formation</label>
+              <select class="form-select" id="formation_id" name="formation_id" required>
+                <option value="" disabled>Choisir une formation</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="formateur_id">Formateur</label>
+              <select class="form-select" id="formateur_id" name="formateur_id" required>
+                <option value="" disabled>Choisir un formateur</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="date_debut">Date debut</label>
+              <input type="datetime-local" class="form-control" id="date_debut" name="date_debut" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="date_fin">Date fin</label>
+              <input type="datetime-local" class="form-control" id="date_fin" name="date_fin" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="lieu">Lieu</label>
+              <input type="text" class="form-control" id="lieu" name="lieu" required>
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-brand">Mettre a jour</button>
+              <a href="/sessions" class="btn btn-outline-brand">Annuler</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      const sessionId = <%= sessionId %>;
+
+      function toLocalDateTime(value) {
+        if (!value) return '';
+        const date = new Date(value);
+        const offset = date.getTimezoneOffset() * 60000;
+        return new Date(date - offset).toISOString().slice(0, 16);
+      }
+
+      async function loadSession() {
+        const [sessionRes, formationsRes, formateursRes, usersRes] = await Promise.all([
+          fetch(`/api/sessions/${sessionId}`),
+          fetch('/api/formations'),
+          fetch('/api/formateurs'),
+          fetch('/api/users')
+        ]);
+
+        const sessionData = await sessionRes.json();
+        const formationsData = await formationsRes.json();
+        const formateursData = await formateursRes.json();
+        const usersData = await usersRes.json();
+        if (!sessionData.success) throw new Error(sessionData.message);
+        if (!formationsData.success) throw new Error(formationsData.message);
+        if (!formateursData.success) throw new Error(formateursData.message);
+        if (!usersData.success) throw new Error(usersData.message);
+
+        const formationSelect = document.getElementById('formation_id');
+        formationsData.formations.forEach(formation => {
+          const option = document.createElement('option');
+          option.value = formation.id;
+          option.textContent = formation.titre || `Formation #${formation.id}`;
+          if (formation.id === sessionData.session.formation_id) option.selected = true;
+          formationSelect.appendChild(option);
+        });
+
+        const userMap = new Map(usersData.users.map(u => [u.id, `${u.prenom || ''} ${u.nom || ''}`.trim()]));
+        const formateurSelect = document.getElementById('formateur_id');
+        formateursData.formateurs.forEach(formateur => {
+          const option = document.createElement('option');
+          option.value = formateur.id;
+          option.textContent = userMap.get(formateur.user_id) || `Formateur #${formateur.id}`;
+          if (formateur.id === sessionData.session.formateur_id) option.selected = true;
+          formateurSelect.appendChild(option);
+        });
+
+        document.getElementById('date_debut').value = toLocalDateTime(sessionData.session.date_debut);
+        document.getElementById('date_fin').value = toLocalDateTime(sessionData.session.date_fin);
+        document.getElementById('lieu').value = sessionData.session.lieu || '';
+      }
+
+      document.getElementById('editSessionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = Object.fromEntries(new FormData(e.target).entries());
+        try {
+          const res = await fetch(`/api/sessions/${sessionId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert('Session mise a jour avec succes.');
+            window.location.href = '/sessions';
+          } else {
+            alert(data.message || 'Erreur serveur.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Erreur lors de la requete.');
+        }
+      });
+
+      loadSession().catch(err => alert(err.message));
+    </script>
+  </body>
+</html>

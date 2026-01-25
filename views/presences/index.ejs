@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+              <h1 class="section-title mb-1"><%= title %></h1>
+              <p class="text-muted mb-0">Etat de presence des inscriptions.</p>
+            </div>
+            <a href="/presences/ajouter" class="btn btn-brand">Ajouter une presence</a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-borderless align-middle">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Inscription</th>
+                  <th>Statut</th>
+                  <th>Date</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="presencesTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      function formatDate(value) {
+        if (!value) return '';
+        return new Date(value).toLocaleString();
+      }
+
+      async function fetchPresences() {
+        try {
+          const [presencesRes, inscriptionsRes, usersRes, sessionsRes, formationsRes] = await Promise.all([
+            fetch('/api/presences'),
+            fetch('/api/inscriptions'),
+            fetch('/api/users'),
+            fetch('/api/sessions'),
+            fetch('/api/formations')
+          ]);
+          const presencesData = await presencesRes.json();
+          const inscriptionsData = await inscriptionsRes.json();
+          const usersData = await usersRes.json();
+          const sessionsData = await sessionsRes.json();
+          const formationsData = await formationsRes.json();
+          if (!presencesData.success) throw new Error(presencesData.message);
+          if (!inscriptionsData.success) throw new Error(inscriptionsData.message);
+          if (!usersData.success) throw new Error(usersData.message);
+          if (!sessionsData.success) throw new Error(sessionsData.message);
+          if (!formationsData.success) throw new Error(formationsData.message);
+
+          const userMap = new Map(usersData.users.map(u => [u.id, `${u.prenom || ''} ${u.nom || ''}`.trim()]));
+          const formationMap = new Map(formationsData.formations.map(f => [f.id, f.titre]));
+          const sessionMap = new Map(sessionsData.sessions.map(s => {
+            const formation = formationMap.get(s.formation_id) || `Formation #${s.formation_id}`;
+            return [s.id, `${formation} - ${formatDate(s.date_debut)}`];
+          }));
+          const inscriptionMap = new Map(inscriptionsData.inscriptions.map(i => {
+            const user = userMap.get(i.user_id) || `User #${i.user_id}`;
+            const session = sessionMap.get(i.session_id) || `Session #${i.session_id}`;
+            return [i.id, `${user} / ${session}`];
+          }));
+
+          const tbody = document.getElementById('presencesTable');
+          tbody.innerHTML = '';
+
+          presencesData.presences.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${item.id}</td>
+              <td>${inscriptionMap.get(item.inscription_id) || item.inscription_id || ''}</td>
+              <td><span class="chip">${item.statut}</span></td>
+              <td>${formatDate(item.date)}</td>
+              <td class="text-end">
+                <a href="/presences/modifier/${item.id}" class="btn btn-sm btn-outline-brand">Modifier</a>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="supprimer('${item.id}')">Supprimer</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } catch (err) {
+          console.error('Erreur API :', err);
+          alert(err.message);
+        }
+      }
+
+      async function supprimer(id) {
+        if (!confirm('Voulez-vous vraiment supprimer cette presence ?')) return;
+        try {
+          const res = await fetch(`/api/presences/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.message);
+          fetchPresences();
+        } catch (err) {
+          alert('Erreur : ' + err.message);
+        }
+      }
+
+      fetchPresences();
+    </script>
+  </body>
+</html>
