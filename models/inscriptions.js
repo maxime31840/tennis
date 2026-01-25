@@ -29,6 +29,7 @@ const Inscription = sequelize.define('Inscription', {
     }
 }, {
   tableName: 'inscriptions',
+  timestamps: false,
 });
 
 module.exports = Inscription;
