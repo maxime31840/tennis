@@ -1,0 +1,49 @@
+<footer class="site-footer">
+  <div class="container footer-card">
+    <% const hasCurrentUser = typeof currentUser !== 'undefined' && currentUser; %>
+    <% const safeTableLinks = typeof tableLinks !== 'undefined' ? tableLinks : []; %>
+    <div class="footer-grid">
+      <section class="footer-block footer-brand-block">
+        <div class="brand">
+          <span class="brand-mark">TA</span>
+          <span class="brand-copy">
+            <strong>Tennis Academy</strong>
+            <small>Gestion des formations tennis</small>
+          </span>
+        </div>
+        <p class="footer-text">
+          Plateforme de suivi des utilisateurs, formateurs, formations, sessions, inscriptions, presences et avis.
+        </p>
+      </section>
+
+      <section class="footer-block">
+        <h3 class="footer-title">Navigation</h3>
+        <div class="footer-links">
+          <a href="/">Accueil</a>
+          <% safeTableLinks.forEach((link) => { %>
+            <a href="<%= link.href %>"><%= link.label %></a>
+          <% }) %>
+          <% if (!hasCurrentUser) { %>
+            <a href="/login">Connexion</a>
+          <% } else { %>
+            <a href="/logout">Deconnexion</a>
+          <% } %>
+        </div>
+      </section>
+
+      <section class="footer-block">
+        <h3 class="footer-title">Plateforme</h3>
+        <div class="footer-meta">
+          <span>Back-office de gestion centre tennis</span>
+          <span>Express, EJS, Sequelize, MySQL</span>
+          <span>Acces differencies selon le role connecte</span>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; <%= new Date().getFullYear() %> Tennis Academy.</p>
+      <p>Projet de gestion des formations tennis.</p>
+    </div>
+  </div>
+</footer>

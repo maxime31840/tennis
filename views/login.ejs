@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('partials/navbar', { currentUser: null, currentPath: currentPath, tableLinks: tableLinks }) %>
+    <main class="page-shell">
+      <div class="container auth-layout">
+        <section class="hero-panel fade-up">
+          <div class="eyebrow">Espace membre</div>
+          <h1 class="hero-title">Connecte-toi a ton espace Tennis Academy.</h1>
+          <p class="hero-subtitle">
+            Accede rapidement aux sessions, aux inscriptions, aux presences et aux retours des apprenants.
+          </p>
+          <div class="module-list">
+            <div class="module-item">
+              <h3>Acces unifie</h3>
+              <p>Une seule entree pour l'administration et le suivi metier.</p>
+            </div>
+            <div class="module-item">
+              <h3>Roles metier</h3>
+              <p>Admin, formateur et apprenant sur le meme socle de donnees.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="data-card fade-up">
+          <div class="card-head">
+            <h2 class="section-title">Connexion</h2>
+            <span class="badge-soft">MySQL + Express</span>
+          </div>
+          <% if (error) { %>
+            <div class="alert-box"><%= error %></div>
+          <% } %>
+          <form action="/login" method="post" class="form-grid">
+            <label class="form-field">
+              <span>Email</span>
+              <input type="email" id="email" name="email" placeholder="vous@tennisacademy.fr" required>
+            </label>
+            <label class="form-field">
+              <span>Mot de passe</span>
+              <input type="password" id="password" name="password" placeholder="Votre mot de passe" required>
+            </label>
+            <button class="btn btn-brand" type="submit">Se connecter</button>
+          </form>
+        </section>
+      </div>
+    </main>
+    <%- include('partials/footer') %>
+  </body>
+</html>

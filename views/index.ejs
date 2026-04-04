@@ -1,11 +1,63 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
   <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <%- include('partials/head', { title: title }) %>
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <%- include('partials/navbar', { currentUser: currentUser, currentPath: currentPath, tableLinks: tableLinks }) %>
+    <main class="page-shell">
+      <div class="container stack-lg">
+        <section class="hero-panel fade-up">
+          <div class="eyebrow">Centre de formation tennis</div>
+          <% if (!currentUser) { %>
+            <h1 class="hero-title">Un accueil simple pour decouvrir la plateforme, puis une connexion pour acceder a ton espace.</h1>
+            <p class="hero-subtitle">
+              Sans authentification, tu restes sur cette page d'accueil. La navigation metier et les tableaux de donnees sont reserves aux utilisateurs connectes selon leur role.
+            </p>
+          <% } else { %>
+            <h1 class="hero-title">Bienvenue dans ton espace <%= currentUser.role %>.</h1>
+            <p class="hero-subtitle">
+              Les menus et les donnees affiches sont filtres selon ton role pour que chaque profil voie uniquement ce qu'il a le droit de consulter.
+            </p>
+          <% } %>
+
+          <div class="hero-actions">
+            <% if (!currentUser) { %>
+              <a class="btn btn-brand" href="/login">Se connecter</a>
+            <% } else if (tableLinks && tableLinks.length) { %>
+              <a class="btn btn-brand" href="<%= tableLinks[0].href %>">Ouvrir mon espace</a>
+              <a class="btn btn-ghost" href="/logout">Se deconnecter</a>
+            <% } else { %>
+              <a class="btn btn-brand" href="/logout">Se deconnecter</a>
+            <% } %>
+          </div>
+
+          <% if (currentUser) { %>
+            <div class="inline-banner">
+              Connecte en tant que <strong><%= currentUser.prenom %> <%= currentUser.nom %></strong> (<%= currentUser.role %>)
+            </div>
+          <% } %>
+        </section>
+
+        <% if (dataError) { %>
+          <section class="data-card">
+            <h2 class="section-title">Etat de la base</h2>
+            <p class="text-muted">Connexion impossible a MySQL pour le moment : <%= dataError %></p>
+          </section>
+        <% } %>
+
+        <% if (currentUser && statItems && statItems.length) { %>
+          <section class="stats-grid fade-up">
+            <% statItems.forEach((item) => { %>
+              <article class="metric-card">
+                <span class="metric-label"><%= item.label %></span>
+                <strong class="metric-value"><%= item.value %></strong>
+              </article>
+            <% }) %>
+          </section>
+        <% } %>
+      </div>
+    </main>
+    <%- include('partials/footer') %>
   </body>
 </html>

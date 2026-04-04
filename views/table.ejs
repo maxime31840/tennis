@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('partials/navbar', { currentUser: currentUser, currentPath: currentPath, tableLinks: tableLinks }) %>
+    <main class="page-shell">
+      <div class="container stack-lg">
+        <section class="hero-panel fade-up page-hero">
+          <div class="eyebrow">Table <%= tableLabel %></div>
+          <h1 class="hero-title page-title"><%= title %></h1>
+          <p class="hero-subtitle"><%= description %></p>
+          <div class="page-meta">
+            <span class="badge-soft"><%= totalItems %> enregistrements</span>
+            <span class="badge-soft">Page <%= currentPage %> / <%= totalPages %></span>
+          </div>
+        </section>
+
+        <% if (statusMessage) { %>
+          <section class="alert-box alert-success fade-up">
+            <strong>Operation terminee.</strong> <%= statusMessage %>
+          </section>
+        <% } %>
+
+        <% if (errorMessage) { %>
+          <section class="alert-box alert-error fade-up">
+            <strong>Verification requise.</strong> <%= errorMessage %>
+          </section>
+        <% } %>
+
+        <% if (crudConfig) { %>
+          <section class="admin-layout fade-up">
+            <% if (crudConfig.createForm) { %>
+              <article class="data-card">
+                <div class="card-head">
+                  <h2 class="section-title"><%= crudConfig.createForm.title %></h2>
+                  <span class="chip">Creation</span>
+                </div>
+                <form class="form-grid admin-form" method="post" action="<%= crudConfig.createForm.action %>">
+                  <input type="hidden" name="page" value="<%= currentPage %>">
+                  <% crudConfig.createForm.fields.forEach((field) => { %>
+                    <label class="form-field">
+                      <span><%= field.label %></span>
+                      <% if (field.type === 'textarea') { %>
+                        <textarea
+                          name="<%= field.name %>"
+                          rows="4"
+                          <%= field.required ? 'required' : '' %>
+                        ><%= field.value %></textarea>
+                      <% } else if (field.type === 'select') { %>
+                        <select name="<%= field.name %>" <%= field.required ? 'required' : '' %>>
+                          <option value="">Selectionner</option>
+                          <% field.options.forEach((option) => { %>
+                            <option value="<%= option.value %>" <%= option.value === field.value ? 'selected' : '' %>><%= option.label %></option>
+                          <% }) %>
+                        </select>
+                      <% } else { %>
+                        <input
+                          type="<%= field.type %>"
+                          name="<%= field.name %>"
+                          value="<%= field.value %>"
+                          <%= field.required ? 'required' : '' %>
+                          <% if (typeof field.min !== 'undefined') { %> min="<%= field.min %>"<% } %>
+                          <% if (typeof field.max !== 'undefined') { %> max="<%= field.max %>"<% } %>>
+                      <% } %>
+                      <% if (field.hint) { %>
+                        <small class="field-hint"><%= field.hint %></small>
+                      <% } %>
+                    </label>
+                  <% }) %>
+                  <div class="form-actions">
+                    <button class="btn btn-brand" type="submit"><%= crudConfig.createForm.submitLabel %></button>
+                  </div>
+                </form>
+              </article>
+            <% } %>
+
+            <% if (crudConfig.editForm) { %>
+              <article class="data-card">
+                <div class="card-head">
+                  <h2 class="section-title"><%= crudConfig.editForm.title %></h2>
+                  <span class="chip">Edition</span>
+                </div>
+                <form class="form-grid admin-form" method="post" action="<%= crudConfig.editForm.action %>">
+                  <input type="hidden" name="page" value="<%= currentPage %>">
+                  <% crudConfig.editForm.fields.forEach((field) => { %>
+                    <label class="form-field">
+                      <span><%= field.label %></span>
+                      <% if (field.type === 'textarea') { %>
+                        <textarea
+                          name="<%= field.name %>"
+                          rows="4"
+                          <%= field.required ? 'required' : '' %>
+                        ><%= field.value %></textarea>
+                      <% } else if (field.type === 'select') { %>
+                        <select name="<%= field.name %>" <%= field.required ? 'required' : '' %>>
+                          <option value="">Selectionner</option>
+                          <% field.options.forEach((option) => { %>
+                            <option value="<%= option.value %>" <%= option.value === field.value ? 'selected' : '' %>><%= option.label %></option>
+                          <% }) %>
+                        </select>
+                      <% } else { %>
+                        <input
+                          type="<%= field.type %>"
+                          name="<%= field.name %>"
+                          value="<%= field.value %>"
+                          <%= field.required ? 'required' : '' %>
+                          <% if (typeof field.min !== 'undefined') { %> min="<%= field.min %>"<% } %>
+                          <% if (typeof field.max !== 'undefined') { %> max="<%= field.max %>"<% } %>>
+                      <% } %>
+                      <% if (field.hint) { %>
+                        <small class="field-hint"><%= field.hint %></small>
+                      <% } %>
+                    </label>
+                  <% }) %>
+                  <div class="form-actions">
+                    <button class="btn btn-brand" type="submit"><%= crudConfig.editForm.submitLabel %></button>
+                    <a class="btn btn-ghost" href="<%= crudConfig.editForm.cancelHref %>">Annuler</a>
+                  </div>
+                </form>
+              </article>
+            <% } %>
+          </section>
+        <% } %>
+
+        <section class="data-card fade-up">
+          <% if (rows.length === 0) { %>
+            <p class="text-muted">Aucune donnee disponible pour cette table.</p>
+          <% } else { %>
+            <div class="table-shell">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <% columns.forEach((column) => { %>
+                      <th><%= column %></th>
+                    <% }) %>
+                    <% if (crudConfig && crudConfig.hasRowActions) { %>
+                      <th>Actions</th>
+                    <% } %>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% rows.forEach((row) => { %>
+                    <tr class="<%= row.isEditing ? 'is-selected' : '' %>">
+                      <% row.cells.forEach((cell) => { %>
+                        <td><%= cell %></td>
+                      <% }) %>
+                      <% if (crudConfig && crudConfig.hasRowActions) { %>
+                        <td class="table-actions">
+                          <% if (row.editUrl) { %>
+                            <a class="btn btn-ghost btn-sm" href="<%= row.editUrl %>">Modifier</a>
+                          <% } %>
+                          <% if (row.deleteAction) { %>
+                            <form method="post" action="<%= row.deleteAction %>" onsubmit="return confirm('Supprimer cet enregistrement ?');">
+                              <input type="hidden" name="page" value="<%= currentPage %>">
+                              <button class="btn btn-danger btn-sm" type="submit">Supprimer</button>
+                            </form>
+                          <% } %>
+                        </td>
+                      <% } %>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+
+          <div class="pagination-bar">
+            <% if (previousPageUrl) { %>
+              <a class="btn btn-ghost" href="<%= previousPageUrl %>">Page precedente</a>
+            <% } else { %>
+              <span class="btn btn-disabled">Page precedente</span>
+            <% } %>
+
+            <div class="pagination-pages">
+              <% pageNumbers.forEach((pageNumber) => { %>
+                <a
+                  class="page-pill <%= pageNumber === currentPage ? 'is-current' : '' %>"
+                  href="<%= basePath %>?page=<%= pageNumber %>">
+                  <%= pageNumber %>
+                </a>
+              <% }) %>
+            </div>
+
+            <% if (nextPageUrl) { %>
+              <a class="btn btn-ghost" href="<%= nextPageUrl %>">Page suivante</a>
+            <% } else { %>
+              <span class="btn btn-disabled">Page suivante</span>
+            <% } %>
+          </div>
+        </section>
+      </div>
+    </main>
+    <%- include('partials/footer') %>
+  </body>
+</html>

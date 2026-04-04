@@ -1,0 +1,23 @@
+<header class="site-header">
+  <div class="container nav-shell">
+    <a class="brand" href="/">
+      <span class="brand-mark">TA</span>
+      <span class="brand-copy">
+        <strong>Tennis Academy</strong>
+        <small>Gestion des formations</small>
+      </span>
+    </a>
+    <nav class="nav-links">
+      <a href="/" class="<%= currentPath === '/' ? 'is-active' : '' %>">Accueil</a>
+      <% (tableLinks || []).forEach((link) => { %>
+        <a href="<%= link.href %>" class="<%= currentPath === link.href ? 'is-active' : '' %>"><%= link.label %></a>
+      <% }) %>
+      <% if (!currentUser) { %>
+        <a href="/login" class="<%= currentPath === '/login' ? 'is-active' : '' %>">Connexion</a>
+      <% } %>
+      <% if (currentUser) { %>
+        <a href="/logout">Deconnexion</a>
+      <% } %>
+    </nav>
+  </div>
+</header>

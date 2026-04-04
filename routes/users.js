@@ -1,9 +1,102 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const { User, Formateur } = require('../models');
+const { parseId, pickDefined, handleApiError } = require('./helpers');
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+const router = express.Router();
+
+router.get('/', async (req, res) => {
+  try {
+    const users = await User.findAll({
+      include: [
+        {
+          model: Formateur,
+          as: 'profilFormateur',
+        },
+      ],
+      order: [['id', 'ASC']],
+    });
+
+    res.json(users);
+  } catch (error) {
+    handleApiError(res, error, 500);
+  }
+});
+
+router.get('/:id', async (req, res) => {
+  const id = parseId(req.params.id);
+  if (!id) {
+    return res.status(400).json({ message: 'Identifiant utilisateur invalide.' });
+  }
+
+  try {
+    const user = await User.findByPk(id, {
+      include: [
+        {
+          model: Formateur,
+          as: 'profilFormateur',
+        },
+      ],
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    }
+
+    return res.json(user);
+  } catch (error) {
+    return handleApiError(res, error, 500);
+  }
+});
+
+router.post('/', async (req, res) => {
+  try {
+    const payload = pickDefined(req.body, ['nom', 'prenom', 'email', 'password', 'role']);
+    const user = await User.create(payload);
+
+    res.status(201).json(user);
+  } catch (error) {
+    handleApiError(res, error);
+  }
+});
+
+router.put('/:id', async (req, res) => {
+  const id = parseId(req.params.id);
+  if (!id) {
+    return res.status(400).json({ message: 'Identifiant utilisateur invalide.' });
+  }
+
+  try {
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    }
+
+    const payload = pickDefined(req.body, ['nom', 'prenom', 'email', 'password', 'role']);
+    await user.update(payload);
+
+    return res.json(user);
+  } catch (error) {
+    return handleApiError(res, error);
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  const id = parseId(req.params.id);
+  if (!id) {
+    return res.status(400).json({ message: 'Identifiant utilisateur invalide.' });
+  }
+
+  try {
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    }
+
+    await user.destroy();
+    return res.status(204).send();
+  } catch (error) {
+    return handleApiError(res, error, 500);
+  }
 });
 
 module.exports = router;

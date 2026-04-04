@@ -1,44 +1,57 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const sequelize = require('../config/database');
 
-const Session = sequelize.define('Session', {
+const Session = sequelize.define(
+  'Session',
+  {
     id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true 
-        },
-
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     formation_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
         model: 'formations',
         key: 'id',
-        },
+      },
     },
     formateur_id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
         model: 'formateurs',
         key: 'id',
-        },
+      },
     },
     date_debut: {
-        type: DataTypes.DATE,
-        allowNull: false
+      type: DataTypes.DATE,
+      allowNull: false,
     },
     date_fin: {
-        type: DataTypes.DATE,
-        allowNull: false
+      type: DataTypes.DATE,
+      allowNull: false,
+      validate: {
+        isAfterStart() {
+          if (this.date_debut && this.date_fin && new Date(this.date_fin) < new Date(this.date_debut)) {
+            throw new Error('La date de fin doit etre posterieure a la date de debut.');
+          }
+        },
+      },
     },
     lieu: {
-        type: DataTypes.STRING,
-        allowNull: false
-    }
-
-}, {
-  tableName: 'sessions',
-});
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+      },
+    },
+  },
+  {
+    tableName: 'sessions',
+    timestamps: false,
+  }
+);
 
 module.exports = Session;
