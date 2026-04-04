@@ -1,6 +1,5 @@
-const { Sequelize } = require('sequelize');
+﻿const { Sequelize } = require('sequelize');
 
-<<<<<<< HEAD
 const sequelize = new Sequelize(
   process.env.DB_NAME || 'tennis',
   process.env.DB_USER || 'root',
@@ -12,13 +11,5 @@ const sequelize = new Sequelize(
     logging: false,
   }
 );
-=======
-const sequelize = new Sequelize('tennis', 'root', '', {
-  host: '127.0.0.1',
-  port: 3306,
-  dialect: 'mysql',
-  logging: false,
-});
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 
 module.exports = sequelize;

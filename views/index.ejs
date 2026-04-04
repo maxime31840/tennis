@@ -1,10 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
   <head>
     <%- include('partials/head', { title: title }) %>
   </head>
   <body>
-<<<<<<< HEAD
     <%- include('partials/navbar', { currentUser: currentUser, currentPath: currentPath, tableLinks: tableLinks }) %>
     <main class="page-shell">
       <div class="container stack-lg">
@@ -60,45 +59,5 @@
       </div>
     </main>
     <%- include('partials/footer') %>
-=======
-    <%- include('partials/navbar'); %>
-    <main class="page-shell">
-      <div class="container">
-        <section class="page-hero fade-up">
-          <span class="badge-soft">Plateforme Tennis Academy</span>
-          <h1 class="hero-title mt-3">Pilotez les formations, les sessions et le suivi des apprenants.</h1>
-          <p class="hero-subtitle">Un tableau de bord unique pour gerer les formateurs, programmer les sessions, suivre les inscriptions et collecter les avis.</p>
-          <div class="d-flex flex-wrap gap-3 mt-4">
-            <a class="btn btn-brand" href="/formations">Voir les formations</a>
-            <a class="btn btn-outline-brand" href="/sessions">Planifier une session</a>
-          </div>
-        </section>
-
-        <section class="feature-grid fade-up fade-delay-1">
-          <div class="feature-card">
-            <h3>Gestion des profils</h3>
-            <p class="text-muted mb-3">Centralisez les utilisateurs, formateurs et roles internes.</p>
-            <a href="/users" class="chip">Utilisateurs</a>
-          </div>
-          <div class="feature-card">
-            <h3>Planning dynamique</h3>
-            <p class="text-muted mb-3">Planifiez chaque session avec lieu et calendrier precis.</p>
-            <a href="/sessions" class="chip">Sessions</a>
-          </div>
-          <div class="feature-card">
-            <h3>Suivi des apprenants</h3>
-            <p class="text-muted mb-3">Controlez les inscriptions et presences.</p>
-            <a href="/inscriptions" class="chip">Inscriptions</a>
-          </div>
-          <div class="feature-card">
-            <h3>Retour terrain</h3>
-            <p class="text-muted mb-3">Analysez les avis pour ajuster les formations.</p>
-            <a href="/avis" class="chip">Avis</a>
-          </div>
-        </section>
-      </div>
-    </main>
-    <%- include('partials/footer'); %>
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
   </body>
 </html>

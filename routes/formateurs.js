@@ -1,5 +1,4 @@
-const express = require('express');
-<<<<<<< HEAD
+﻿const express = require('express');
 const { Formateur, User } = require('../models');
 const { parseId, pickDefined, handleApiError } = require('./helpers');
 
@@ -111,20 +110,6 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     return handleApiError(res, error, 500);
   }
-=======
-const router = express.Router();
-
-router.get('/', (req, res) => {
-  res.render('formateurs/index', { title: 'Liste des formateurs' });
-});
-
-router.get('/ajouter', (req, res) => {
-  res.render('formateurs/ajouter', { title: 'Ajouter un formateur' });
-});
-
-router.get('/modifier/:id', (req, res) => {
-  res.render('formateurs/modifier', { title: 'Modifier un formateur', formateurId: req.params.id });
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 });
 
 module.exports = router;

@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-:root {
+﻿:root {
   --bg: #f4efe6;
   --surface: rgba(255, 250, 242, 0.82);
   --surface-strong: #fffaf4;
@@ -12,27 +11,12 @@
   --shadow: 0 20px 40px rgba(23, 56, 41, 0.12);
   --radius-lg: 28px;
   --radius-md: 18px;
-=======
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
-
-:root {
-  --ink: #0f172a;
-  --slate: #334155;
-  --sand: #f8fafc;
-  --sea: #0ea5a3;
-  --sea-dark: #0f766e;
-  --sun: #f59e0b;
-  --rose: #f97316;
-  --panel: rgba(255, 255, 255, 0.92);
-  --shadow: 0 25px 60px -40px rgba(15, 23, 42, 0.35);
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 }
 
 * {
   box-sizing: border-box;
 }
 
-<<<<<<< HEAD
 html {
   scroll-behavior: smooth;
 }
@@ -46,17 +30,6 @@ body {
     radial-gradient(circle at top left, rgba(201, 123, 42, 0.18), transparent 30%),
     radial-gradient(circle at right center, rgba(40, 89, 67, 0.18), transparent 32%),
     linear-gradient(180deg, #f8f3eb 0%, #efe6d8 100%);
-=======
-body {
-  min-height: 100vh;
-  margin: 0;
-  font-family: "Space Grotesk", "Segoe UI", sans-serif;
-  color: var(--ink);
-  background:
-    radial-gradient(circle at top right, rgba(14, 165, 163, 0.18), transparent 55%),
-    radial-gradient(circle at 10% 40%, rgba(245, 158, 11, 0.2), transparent 50%),
-    linear-gradient(120deg, #e2e8f0, #fef3c7 40%, #f1f5f9);
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 }
 
 a {
@@ -64,7 +37,6 @@ a {
   text-decoration: none;
 }
 
-<<<<<<< HEAD
 button,
 input,
 select,
@@ -552,148 +524,6 @@ textarea {
 
 .fade-up {
   animation: fadeUp 0.6s ease both;
-=======
-.page-shell {
-  padding: 2rem 0 4rem;
-}
-
-.page-hero {
-  background: var(--panel);
-  border-radius: 24px;
-  padding: 2.5rem;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-}
-
-.hero-title {
-  font-family: "Playfair Display", "Times New Roman", serif;
-  font-size: clamp(2.4rem, 3vw, 3.4rem);
-  margin-bottom: 0.75rem;
-}
-
-.hero-subtitle {
-  color: var(--slate);
-  max-width: 720px;
-}
-
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.5rem;
-  margin-top: 2rem;
-}
-
-.feature-card {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 18px;
-  padding: 1.5rem;
-  border: 1px solid rgba(148, 163, 184, 0.3);
-  box-shadow: 0 18px 40px -30px rgba(15, 23, 42, 0.25);
-}
-
-.feature-card h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-}
-
-.badge-soft {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  background: rgba(14, 165, 163, 0.15);
-  color: var(--sea-dark);
-}
-
-.data-card {
-  background: var(--panel);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(148, 163, 184, 0.25);
-}
-
-.section-title {
-  font-family: "Playfair Display", "Times New Roman", serif;
-  font-size: 1.6rem;
-}
-
-.table thead th {
-  background: rgba(15, 23, 42, 0.08);
-  color: var(--slate);
-  border-bottom: none;
-}
-
-.table tbody tr {
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.btn-brand {
-  background: linear-gradient(120deg, var(--sea), var(--sea-dark));
-  border: none;
-  color: #fff;
-  font-weight: 600;
-}
-
-.btn-brand:hover {
-  color: #fff;
-  opacity: 0.92;
-}
-
-.btn-outline-brand {
-  border: 1px solid var(--sea-dark);
-  color: var(--sea-dark);
-}
-
-.chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  background: rgba(15, 118, 110, 0.12);
-  color: var(--sea-dark);
-  font-size: 0.8rem;
-}
-
-.form-label {
-  font-weight: 600;
-  color: var(--slate);
-}
-
-.site-footer {
-  margin-top: 3rem;
-  padding: 2rem 0 3rem;
-  color: var(--slate);
-}
-
-.navbar {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
-}
-
-.navbar .nav-link,
-.navbar .navbar-brand {
-  color: #f8fafc;
-  font-weight: 500;
-}
-
-.navbar .nav-link:hover {
-  color: var(--sun);
-}
-
-.fade-up {
-  animation: fadeUp 0.7s ease both;
-}
-
-.fade-delay-1 {
-  animation-delay: 0.12s;
-}
-
-.fade-delay-2 {
-  animation-delay: 0.24s;
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 }
 
 @keyframes fadeUp {
@@ -707,7 +537,6 @@ textarea {
   }
 }
 
-<<<<<<< HEAD
 @media (max-width: 900px) {
   .content-grid,
   .auth-layout {
@@ -723,15 +552,5 @@ textarea {
 
   .footer-grid {
     grid-template-columns: 1fr;
-=======
-@media (max-width: 768px) {
-  .page-hero,
-  .data-card {
-    padding: 1.5rem;
-  }
-
-  .navbar .nav-link {
-    padding: 0.5rem 0;
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
   }
 }

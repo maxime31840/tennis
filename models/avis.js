@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-const { DataTypes } = require('sequelize');
-=======
-const { DataTypes, DATE } = require('sequelize');
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
+﻿const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Avis = sequelize.define(

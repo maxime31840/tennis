@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const { User } = require('../models');
 const { getHomeStats, requireAuth } = require('../middleware/auth');
 const {
@@ -9,7 +9,6 @@ const {
   renderTablePage,
 } = require('./adminTables');
 
-<<<<<<< HEAD
 const router = express.Router();
 
 function renderHome(res, dataError = null, statItems = []) {
@@ -82,11 +81,6 @@ router.post('/login', async (req, res) => {
 router.get('/logout', (req, res) => {
   res.clearCookie('auth_user_id');
   res.redirect('/');
-=======
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Tennis Academy' });
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 });
 
 module.exports = router;

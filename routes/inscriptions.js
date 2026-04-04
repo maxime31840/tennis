@@ -1,5 +1,4 @@
-const express = require('express');
-<<<<<<< HEAD
+﻿const express = require('express');
 const { Inscription, User, Session, Formation, Formateur } = require('../models');
 const { parseId, pickDefined, handleApiError } = require('./helpers');
 
@@ -131,20 +130,6 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     return handleApiError(res, error, 500);
   }
-=======
-const router = express.Router();
-
-router.get('/', (req, res) => {
-  res.render('inscriptions/index', { title: 'Liste des inscriptions' });
-});
-
-router.get('/ajouter', (req, res) => {
-  res.render('inscriptions/ajouter', { title: 'Ajouter une inscription' });
-});
-
-router.get('/modifier/:id', (req, res) => {
-  res.render('inscriptions/modifier', { title: 'Modifier une inscription', inscriptionId: req.params.id });
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 });
 
 module.exports = router;

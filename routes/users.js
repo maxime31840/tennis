@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-const express = require('express');
+﻿const express = require('express');
 const { User, Formateur } = require('../models');
 const { parseId, pickDefined, handleApiError } = require('./helpers');
 
@@ -97,31 +96,6 @@ router.delete('/:id', async (req, res) => {
     return res.status(204).send();
   } catch (error) {
     return handleApiError(res, error, 500);
-=======
-var express = require('express');
-var router = express.Router();
-const User = require('../models/users');
-
-/* GET users listing. */
-
-router.get('/ajouter', (req, res) => {
-  res.render('users/ajouter', { title: 'Ajouter un utilisateur' });
-});
-
-router.get('/', (req,res) => {
-  res.render('users/index', { title: 'Liste des utilisateurs' });
-})
-
-router.get('/modifier/:id', async (req, res) => {
-  try {
-    const user = await User.findByPk(req.params.id);
-    if (!user) return res.status(404).send('Utilisateur non trouvé');
-
-    res.render('users/modifier', { user, title: 'Modifier l\'utilisateur' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Erreur serveur');
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
   }
 });
 

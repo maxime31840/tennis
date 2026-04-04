@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+﻿const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Formation = sequelize.define(
@@ -17,7 +17,6 @@ const Formation = sequelize.define(
       },
     },
     description: {
-<<<<<<< HEAD
       type: DataTypes.TEXT,
       allowNull: true,
       defaultValue: null,
@@ -28,16 +27,5 @@ const Formation = sequelize.define(
     timestamps: false,
   }
 );
-=======
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: null
-    }
-
-}, {
-  tableName: 'formations',
-  timestamps: false,
-});
->>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 
 module.exports = Formation;
