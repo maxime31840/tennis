@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <h1 class="section-title mb-4"><%= title %></h1>
+          <form id="editUserForm" class="row g-3">
+            <div class="col-md-6">
+              <label for="nom" class="form-label">Nom</label>
+              <input type="text" id="nom" name="nom" class="form-control" value="<%= user.nom %>" required>
+            </div>
+            <div class="col-md-6">
+              <label for="prenom" class="form-label">Prenom</label>
+              <input type="text" id="prenom" name="prenom" class="form-control" value="<%= user.prenom %>" required>
+            </div>
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" id="email" name="email" class="form-control" value="<%= user.email %>" required>
+            </div>
+            <div class="col-md-6">
+              <label for="role" class="form-label">Role</label>
+              <select id="role" name="role" class="form-select" required>
+                <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Administrateur</option>
+                <option value="apprenant" <%= user.role === 'apprenant' ? 'selected' : '' %>>Apprenant</option>
+                <option value="formateur" <%= user.role === 'formateur' ? 'selected' : '' %>>Formateur</option>
+              </select>
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-brand">Mettre a jour</button>
+              <a href="/users" class="btn btn-outline-brand">Annuler</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      const form = document.getElementById('editUserForm');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = {
+          nom: form.nom.value,
+          prenom: form.prenom.value,
+          email: form.email.value,
+          role: form.role.value
+        };
+
+        try {
+          const response = await fetch('/api/user/<%= user.id %>', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            alert('Utilisateur mis a jour avec succes.');
+            window.location.href = '/users';
+          } else {
+            alert('Erreur : ' + data.message);
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Erreur serveur.');
+        }
+      });
+    </script>
+  </body>
+</html>

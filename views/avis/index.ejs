@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+              <h1 class="section-title mb-1"><%= title %></h1>
+              <p class="text-muted mb-0">Avis et notes des apprenants.</p>
+            </div>
+            <a href="/avis/ajouter" class="btn btn-brand">Ajouter un avis</a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-borderless align-middle">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Apprenant</th>
+                  <th>Formation</th>
+                  <th>Note</th>
+                  <th>Commentaire</th>
+                  <th>Date</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="avisTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      function formatDate(value) {
+        if (!value) return '';
+        return new Date(value).toLocaleString();
+      }
+
+      async function fetchAvis() {
+        try {
+          const [avisRes, usersRes, formationsRes] = await Promise.all([
+            fetch('/api/avis'),
+            fetch('/api/users'),
+            fetch('/api/formations')
+          ]);
+          const avisData = await avisRes.json();
+          const usersData = await usersRes.json();
+          const formationsData = await formationsRes.json();
+          if (!avisData.success) throw new Error(avisData.message);
+          if (!usersData.success) throw new Error(usersData.message);
+          if (!formationsData.success) throw new Error(formationsData.message);
+
+          const userMap = new Map(usersData.users.map(user => [user.id, `${user.prenom || ''} ${user.nom || ''}`.trim()]));
+          const formationMap = new Map(formationsData.formations.map(f => [f.id, f.titre]));
+          const tbody = document.getElementById('avisTable');
+          tbody.innerHTML = '';
+
+          avisData.avis.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${item.id}</td>
+              <td>${userMap.get(item.user_id) || item.user_id || ''}</td>
+              <td>${formationMap.get(item.formation_id) || item.formation_id || ''}</td>
+              <td><span class="chip">${item.note}</span></td>
+              <td>${item.commentaire || ''}</td>
+              <td>${formatDate(item.date)}</td>
+              <td class="text-end">
+                <a href="/avis/modifier/${item.id}" class="btn btn-sm btn-outline-brand">Modifier</a>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="supprimer('${item.id}')">Supprimer</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } catch (err) {
+          console.error('Erreur API :', err);
+          alert(err.message);
+        }
+      }
+
+      async function supprimer(id) {
+        if (!confirm('Voulez-vous vraiment supprimer cet avis ?')) return;
+        try {
+          const res = await fetch(`/api/avis/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.message);
+          fetchAvis();
+        } catch (err) {
+          alert('Erreur : ' + err.message);
+        }
+      }
+
+      fetchAvis();
+    </script>
+  </body>
+</html>

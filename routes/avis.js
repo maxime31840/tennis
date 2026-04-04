@@ -1,4 +1,5 @@
 const express = require('express');
+<<<<<<< HEAD
 const { Avis, User, Formation } = require('../models');
 const { parseId, pickDefined, handleApiError } = require('./helpers');
 
@@ -119,6 +120,20 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     return handleApiError(res, error, 500);
   }
+=======
+const router = express.Router();
+
+router.get('/', (req, res) => {
+  res.render('avis/index', { title: 'Liste des avis' });
+});
+
+router.get('/ajouter', (req, res) => {
+  res.render('avis/ajouter', { title: 'Ajouter un avis' });
+});
+
+router.get('/modifier/:id', (req, res) => {
+  res.render('avis/modifier', { title: 'Modifier un avis', avisId: req.params.id });
+>>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 });
 
 module.exports = router;

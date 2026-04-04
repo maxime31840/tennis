@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <h1 class="section-title mb-4"><%= title %></h1>
+          <form id="editFormationForm" class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="titre">Titre</label>
+              <input type="text" class="form-control" id="titre" name="titre" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="description">Description</label>
+              <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-brand">Mettre a jour</button>
+              <a href="/formations" class="btn btn-outline-brand">Annuler</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      const formationId = <%= formationId %>;
+
+      async function loadFormation() {
+        const res = await fetch(`/api/formations/${formationId}`);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+        document.getElementById('titre').value = data.formation.titre || '';
+        document.getElementById('description').value = data.formation.description || '';
+      }
+
+      document.getElementById('editFormationForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = Object.fromEntries(new FormData(e.target).entries());
+        try {
+          const res = await fetch(`/api/formations/${formationId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert('Formation mise a jour avec succes.');
+            window.location.href = '/formations';
+          } else {
+            alert(data.message || 'Erreur serveur.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Erreur lors de la requete.');
+        }
+      });
+
+      loadFormation().catch(err => alert(err.message));
+    </script>
+  </body>
+</html>

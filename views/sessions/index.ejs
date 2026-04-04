@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+              <h1 class="section-title mb-1"><%= title %></h1>
+              <p class="text-muted mb-0">Programmation des sessions de formation.</p>
+            </div>
+            <a href="/sessions/ajouter" class="btn btn-brand">Ajouter une session</a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-borderless align-middle">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Formation</th>
+                  <th>Formateur</th>
+                  <th>Debut</th>
+                  <th>Fin</th>
+                  <th>Lieu</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="sessionsTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      function formatDate(value) {
+        if (!value) return '';
+        return new Date(value).toLocaleString();
+      }
+
+      async function fetchSessions() {
+        try {
+          const [sessionsRes, formationsRes, formateursRes, usersRes] = await Promise.all([
+            fetch('/api/sessions'),
+            fetch('/api/formations'),
+            fetch('/api/formateurs'),
+            fetch('/api/users')
+          ]);
+
+          const sessionsData = await sessionsRes.json();
+          const formationsData = await formationsRes.json();
+          const formateursData = await formateursRes.json();
+          const usersData = await usersRes.json();
+          if (!sessionsData.success) throw new Error(sessionsData.message);
+          if (!formationsData.success) throw new Error(formationsData.message);
+          if (!formateursData.success) throw new Error(formateursData.message);
+          if (!usersData.success) throw new Error(usersData.message);
+
+          const formationMap = new Map(formationsData.formations.map(f => [f.id, f.titre]));
+          const userMap = new Map(usersData.users.map(u => [u.id, `${u.prenom || ''} ${u.nom || ''}`.trim()]));
+          const formateurMap = new Map(formateursData.formateurs.map(f => [f.id, userMap.get(f.user_id) || `Formateur #${f.id}`]));
+
+          const tbody = document.getElementById('sessionsTable');
+          tbody.innerHTML = '';
+
+          sessionsData.sessions.forEach(session => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${session.id}</td>
+              <td>${formationMap.get(session.formation_id) || session.formation_id || ''}</td>
+              <td>${formateurMap.get(session.formateur_id) || session.formateur_id || ''}</td>
+              <td>${formatDate(session.date_debut)}</td>
+              <td>${formatDate(session.date_fin)}</td>
+              <td>${session.lieu || ''}</td>
+              <td class="text-end">
+                <a href="/sessions/modifier/${session.id}" class="btn btn-sm btn-outline-brand">Modifier</a>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="supprimer('${session.id}')">Supprimer</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } catch (err) {
+          console.error('Erreur API :', err);
+          alert(err.message);
+        }
+      }
+
+      async function supprimer(id) {
+        if (!confirm('Voulez-vous vraiment supprimer cette session ?')) return;
+        try {
+          const res = await fetch(`/api/sessions/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.message);
+          fetchSessions();
+        } catch (err) {
+          alert('Erreur : ' + err.message);
+        }
+      }
+
+      fetchSessions();
+    </script>
+  </body>
+</html>

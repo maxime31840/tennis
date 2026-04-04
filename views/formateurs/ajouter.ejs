@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <h1 class="section-title mb-4"><%= title %></h1>
+          <form id="ajouterFormateur" class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="user_id">Utilisateur</label>
+              <select class="form-select" id="user_id" name="user_id" required>
+                <option value="" disabled selected>Choisir un utilisateur</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="specialite">Specialite</label>
+              <input type="text" class="form-control" id="specialite" name="specialite">
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-brand">Creer</button>
+              <a href="/formateurs" class="btn btn-outline-brand">Annuler</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      async function loadUsers() {
+        const res = await fetch('/api/users');
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+        const select = document.getElementById('user_id');
+        data.users.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.id;
+          option.textContent = `${user.prenom || ''} ${user.nom || ''}`.trim() || `User #${user.id}`;
+          select.appendChild(option);
+        });
+      }
+
+      document.getElementById('ajouterFormateur').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = Object.fromEntries(new FormData(e.target).entries());
+        try {
+          const res = await fetch('/api/formateurs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+          const data = await res.json();
+          if (data.success) {
+            alert('Formateur ajoute avec succes.');
+            window.location.href = '/formateurs';
+          } else {
+            alert(data.message || 'Erreur serveur.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Erreur lors de la requete.');
+        }
+      });
+
+      loadUsers().catch(err => alert(err.message));
+    </script>
+  </body>
+</html>

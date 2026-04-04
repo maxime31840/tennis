@@ -1,4 +1,5 @@
 const express = require('express');
+<<<<<<< HEAD
 const { Session, Formation, Formateur, User } = require('../models');
 const { parseId, pickDefined, handleApiError } = require('./helpers');
 
@@ -123,6 +124,20 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     return handleApiError(res, error, 500);
   }
+=======
+const router = express.Router();
+
+router.get('/', (req, res) => {
+  res.render('sessions/index', { title: 'Liste des sessions' });
+});
+
+router.get('/ajouter', (req, res) => {
+  res.render('sessions/ajouter', { title: 'Ajouter une session' });
+});
+
+router.get('/modifier/:id', (req, res) => {
+  res.render('sessions/modifier', { title: 'Modifier une session', sessionId: req.params.id });
+>>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 });
 
 module.exports = router;

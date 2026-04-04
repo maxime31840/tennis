@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+              <h1 class="section-title mb-1"><%= title %></h1>
+              <p class="text-muted mb-0">Catalogue des formations proposees.</p>
+            </div>
+            <a href="/formations/ajouter" class="btn btn-brand">Ajouter une formation</a>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-borderless align-middle">
+              <thead>
+                <tr>
+                  <th>Id</th>
+                  <th>Titre</th>
+                  <th>Description</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="formationsTable"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      async function fetchFormations() {
+        try {
+          const res = await fetch('/api/formations');
+          const data = await res.json();
+          if (!data.success) throw new Error(data.message);
+
+          const tbody = document.getElementById('formationsTable');
+          tbody.innerHTML = '';
+
+          data.formations.forEach(formation => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${formation.id}</td>
+              <td>${formation.titre || ''}</td>
+              <td>${formation.description || ''}</td>
+              <td class="text-end">
+                <a href="/formations/modifier/${formation.id}" class="btn btn-sm btn-outline-brand">Modifier</a>
+                <button class="btn btn-sm btn-outline-danger ms-2" onclick="supprimer('${formation.id}')">Supprimer</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        } catch (err) {
+          console.error('Erreur API :', err);
+          alert(err.message);
+        }
+      }
+
+      async function supprimer(id) {
+        if (!confirm('Voulez-vous vraiment supprimer cette formation ?')) return;
+        try {
+          const res = await fetch(`/api/formations/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (!data.success) throw new Error(data.message);
+          fetchFormations();
+        } catch (err) {
+          alert('Erreur : ' + err.message);
+        }
+      }
+
+      fetchFormations();
+    </script>
+  </body>
+</html>

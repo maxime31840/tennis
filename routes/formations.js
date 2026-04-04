@@ -1,4 +1,5 @@
 const express = require('express');
+<<<<<<< HEAD
 const { Formation, Session, Avis } = require('../models');
 const { parseId, pickDefined, handleApiError } = require('./helpers');
 
@@ -93,6 +94,20 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     return handleApiError(res, error, 500);
   }
+=======
+const router = express.Router();
+
+router.get('/', (req, res) => {
+  res.render('formations/index', { title: 'Liste des formations' });
+});
+
+router.get('/ajouter', (req, res) => {
+  res.render('formations/ajouter', { title: 'Ajouter une formation' });
+});
+
+router.get('/modifier/:id', (req, res) => {
+  res.render('formations/modifier', { title: 'Modifier une formation', formationId: req.params.id });
+>>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 });
 
 module.exports = router;

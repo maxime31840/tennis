@@ -41,6 +41,7 @@ const Session = sequelize.define(
       },
     },
     lieu: {
+<<<<<<< HEAD
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
@@ -53,5 +54,15 @@ const Session = sequelize.define(
     timestamps: false,
   }
 );
+=======
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+
+}, {
+  tableName: 'sessions',
+  timestamps: false,
+});
+>>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 
 module.exports = Session;

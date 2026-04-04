@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%- include('../partials/head', { title: title }) %>
+  </head>
+  <body>
+    <%- include('../partials/navbar'); %>
+    <main class="page-shell">
+      <div class="container">
+        <section class="data-card fade-up">
+          <h1 class="section-title mb-4"><%= title %></h1>
+          <form id="ajouterUser" class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label" for="nom">Nom</label>
+              <input type="text" class="form-control" id="nom" name="nom" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="prenom">Prenom</label>
+              <input type="text" class="form-control" id="prenom" name="prenom" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="email">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="password">Mot de passe</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" for="role">Role</label>
+              <select class="form-select" id="role" name="role" required>
+                <option value="" selected disabled>Choisir un role</option>
+                <option value="admin">Administrateur</option>
+                <option value="apprenant">Apprenant</option>
+                <option value="formateur">Formateur</option>
+              </select>
+            </div>
+            <div class="col-12 d-flex gap-2">
+              <button type="submit" class="btn btn-brand">Creer</button>
+              <a href="/users" class="btn btn-outline-brand">Annuler</a>
+            </div>
+          </form>
+        </section>
+      </div>
+    </main>
+    <%- include('../partials/footer'); %>
+
+    <script>
+      document.getElementById('ajouterUser').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = Object.fromEntries(new FormData(e.target).entries());
+
+        try {
+          const res = await fetch('/api/user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            alert('Utilisateur ajoute avec succes.');
+            window.location.href = '/users';
+          } else {
+            alert(data.message || 'Erreur serveur.');
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Erreur lors de la requete.');
+        }
+      });
+    </script>
+  </body>
+</html>

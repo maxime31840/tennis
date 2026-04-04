@@ -26,6 +26,7 @@ const Inscription = sequelize.define(
       },
     },
     date_inscription: {
+<<<<<<< HEAD
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
@@ -42,5 +43,14 @@ const Inscription = sequelize.define(
     ],
   }
 );
+=======
+        type: DataTypes.DATE,
+        allowNull: false
+    }
+}, {
+  tableName: 'inscriptions',
+  timestamps: false,
+});
+>>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 
 module.exports = Inscription;

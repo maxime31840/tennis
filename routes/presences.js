@@ -1,4 +1,5 @@
 const express = require('express');
+<<<<<<< HEAD
 const { Presence, Inscription, User, Session } = require('../models');
 const { parseId, pickDefined, handleApiError } = require('./helpers');
 
@@ -109,6 +110,20 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     return handleApiError(res, error, 500);
   }
+=======
+const router = express.Router();
+
+router.get('/', (req, res) => {
+  res.render('presences/index', { title: 'Liste des presences' });
+});
+
+router.get('/ajouter', (req, res) => {
+  res.render('presences/ajouter', { title: 'Ajouter une presence' });
+});
+
+router.get('/modifier/:id', (req, res) => {
+  res.render('presences/modifier', { title: 'Modifier une presence', presenceId: req.params.id });
+>>>>>>> d047430d198dd8a6774cb1a1badb9d212d5c473d
 });
 
 module.exports = router;
